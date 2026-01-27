@@ -5,14 +5,11 @@ import SwiftUI
 @MainActor
 final class WelcomeViewModel: ObservableObject {
 
-    // MARK: - Nested Types
-
     enum Stage {
-        case initial          // before anything is shown
-        case logoAndSubtitle  // "Realy" + subtitle visible
-        case humanBadge       // "HUMAN" badge visible (for subscribed users)
-        case filled           // white filled state (for subscribed users)
-        case finished         // animation finished
+        case initial
+        case elementsVisible
+        case humanBadgeFilled
+        case finished
     }
 
     // MARK: - Published State
@@ -23,6 +20,7 @@ final class WelcomeViewModel: ObservableObject {
     // MARK: - Configuration
 
     let totalDuration: Double
+    let appearanceAnimationDuration: Double = 0.5
 
     // MARK: - Dependencies
 
@@ -49,15 +47,40 @@ final class WelcomeViewModel: ObservableObject {
     // MARK: - Private
 
     private func runAnimation() async {
+        let startTime = Date()
         stage = .initial
 
+        withAnimation(.easeInOut(duration: appearanceAnimationDuration)) {
+            stage = .elementsVisible
+        }
+
+        try? await Task.sleep(nanoseconds: UInt64(appearanceAnimationDuration * 1_000_000_000))
+        
         do {
             let subscription = try await subscriptionService.hasActiveSubscription()
             hasSubscription = subscription
         } catch {
             hasSubscription = false
         }
-        stage = .logoAndSubtitle
+
+        if hasSubscription {
+            let elapsed = Date().timeIntervalSince(startTime)
+            let remainingTime = totalDuration - elapsed - 0.3
+            if remainingTime > 0 {
+                try? await Task.sleep(nanoseconds: UInt64(remainingTime * 1_000_000_000))
+            }
+            
+            withAnimation(.easeInOut(duration: 0.3)) {
+                stage = .humanBadgeFilled
+            }
+        }
+
+        let totalElapsed = Date().timeIntervalSince(startTime)
+        if totalElapsed < totalDuration {
+            try? await Task.sleep(nanoseconds: UInt64((totalDuration - totalElapsed) * 1_000_000_000))
+        }
+
+        stage = .finished
     }
 }
 
