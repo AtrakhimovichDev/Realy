@@ -20,7 +20,8 @@ final class WelcomeViewModel: ObservableObject {
     // MARK: - Configuration
 
     let totalDuration: Double
-    let appearanceAnimationDuration: Double = 0.5
+    let appearanceAnimationDuration: Double
+    let badgeFillAnimationDuration: Double
 
     // MARK: - Dependencies
 
@@ -30,9 +31,13 @@ final class WelcomeViewModel: ObservableObject {
 
     init(
         totalDuration: Double = 2.0,
+        appearanceAnimationDuration: Double = 1.0,
+        badgeFillAnimationDuration: Double = 0.5,
         subscriptionService: SubscriptionServiceProtocol = MockSubscriptionService()
     ) {
         self.totalDuration = totalDuration
+        self.appearanceAnimationDuration = appearanceAnimationDuration
+        self.badgeFillAnimationDuration = badgeFillAnimationDuration
         self.subscriptionService = subscriptionService
     }
 
@@ -54,8 +59,8 @@ final class WelcomeViewModel: ObservableObject {
             stage = .elementsVisible
         }
 
-        try? await Task.sleep(nanoseconds: UInt64(appearanceAnimationDuration * 1_000_000_000))
-        
+        try? await Task.sleep(nanoseconds: appearanceAnimationDuration.nanoseconds)
+
         do {
             let subscription = try await subscriptionService.hasActiveSubscription()
             hasSubscription = subscription
@@ -65,19 +70,19 @@ final class WelcomeViewModel: ObservableObject {
 
         if hasSubscription {
             let elapsed = Date().timeIntervalSince(startTime)
-            let remainingTime = totalDuration - elapsed - 0.3
+            let remainingTime = totalDuration - elapsed - badgeFillAnimationDuration
             if remainingTime > 0 {
-                try? await Task.sleep(nanoseconds: UInt64(remainingTime * 1_000_000_000))
+                try? await Task.sleep(nanoseconds: remainingTime.nanoseconds)
             }
             
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(.easeInOut(duration: badgeFillAnimationDuration)) {
                 stage = .humanBadgeFilled
             }
         }
 
         let totalElapsed = Date().timeIntervalSince(startTime)
         if totalElapsed < totalDuration {
-            try? await Task.sleep(nanoseconds: UInt64((totalDuration - totalElapsed) * 1_000_000_000))
+            try? await Task.sleep(nanoseconds: (totalDuration - totalElapsed).nanoseconds)
         }
 
         stage = .finished

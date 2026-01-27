@@ -6,9 +6,9 @@ struct HumanBadgeView: View {
     let animationDuration: Double
     
     var body: some View {
-        Text("HUMAN")
+        Text(R.String.humanBadge)
             .font(.system(size: 24, weight: .medium))
-            .foregroundColor(isFilled ? Color("realyRed") : .white)
+            .foregroundColor(isFilled ? Color.realyRed : .white)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(
@@ -22,7 +22,7 @@ struct HumanBadgeView: View {
                     }
                 }
             )
-            .transition(.scale.combined(with: .opacity))
+            .transition(.opacity)
             .animation(.easeInOut(duration: animationDuration), value: isFilled)
     }
 }

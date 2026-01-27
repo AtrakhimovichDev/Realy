@@ -12,28 +12,34 @@ struct WelcomeView: View {
 
     var body: some View {
         ZStack {
-            Color("realyRed")
+            Color.realyRed
                 .ignoresSafeArea()
             
             VStack {
                 Spacer()
 
-                Image("realyIcon")
+                Image(R.Images.realyIcon)
                     .opacity(viewModel.stage == .initial ? 0 : 1)
-                    .animation(.easeInOut(duration: viewModel.appearanceAnimationDuration), value: viewModel.stage)
+                    .animation(
+                        .easeInOut(duration: viewModel.appearanceAnimationDuration),
+                        value: viewModel.stage
+                    )
+
+                Spacer()
+            }
+
+            VStack {
                 Spacer()
 
-                if viewModel.stage == .elementsVisible ||
-                    viewModel.stage == .humanBadgeFilled ||
-                    viewModel.stage == .finished {
+                if viewModel.stage != .initial {
                     HumanBadgeView(
                         isFilled: viewModel.stage == .humanBadgeFilled ||
                         (viewModel.stage == .finished && viewModel.hasSubscription),
-                        animationDuration: 0.3
+                        animationDuration: viewModel.badgeFillAnimationDuration
                     )
                 }
 
-                Text("A platform for finding and building meaningful friendships")
+                Text(R.String.subtitle)
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(.white.opacity(0.5))
                     .multilineTextAlignment(.center)

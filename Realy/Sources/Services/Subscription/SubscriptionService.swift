@@ -10,7 +10,7 @@ final class MockSubscriptionService: SubscriptionServiceProtocol {
         // Simulate network latency
         try await Task.sleep(nanoseconds: 500_000_000) // 0.5s
 
-        return false
+        return Bool.random()
     }
 }
 
