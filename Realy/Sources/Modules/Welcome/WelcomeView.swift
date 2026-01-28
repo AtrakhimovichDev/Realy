@@ -4,6 +4,7 @@ struct WelcomeView: View {
 
     @StateObject private var viewModel: WelcomeViewModel
 
+    // MARK: Почему вью модель создается вунтри вьюхи? Зачем totalDuration инжектить через вью? Так таймингами все равно управляет вью модель я бы сразу туда передавал.
     init(totalDuration: Double = 2.0) {
         _viewModel = StateObject(
             wrappedValue: WelcomeViewModel(totalDuration: totalDuration)
@@ -14,7 +15,7 @@ struct WelcomeView: View {
         ZStack {
             Color.realyRed
                 .ignoresSafeArea()
-            
+            // MARK: Некритично, но я бы старался избегать использования Spacer() в верстке. Выглядит чище. Решается с помощью alignment в стеках и с помощью frame.
             VStack {
                 Spacer()
 
